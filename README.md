@@ -1,34 +1,34 @@
-# 🔐 Multi-threaded Password Generator
+# 🧩 Multi-threaded Puzzle Solver
 
-This project is a multi-threaded C program that generates passwords by combining words from a dictionary file. It utilizes both producer and consumer threads to populate and access a hashset of words for password creation. 
+A multi-threaded C program that solves word search puzzles. It divides a puzzle grid into sub-puzzles and uses multiple threads to find words from a dictionary within specified length limits, outputting them in alphabetical order if requested.
 
 ## 📋 Features
 
-- **Producer/Consumer Model**: Producer threads insert words into a hashset, and consumer threads generate passwords by randomly selecting and deleting words from the hashset.
-- **Randomized Password Creation**: Each password is created by selecting a specified number of random words from the dictionary.
-- **Multi-threading Support**: The number of producer and consumer threads can be customized, allowing for optimized performance.
-- **Concurrency**: Uses mutex locks to ensure safe access to the shared hashset across threads.
+- **Multi-threading**: Uses a producer/consumer model with customizable buffer sizes and thread count for efficient puzzle-solving.
+- **Command-line Arguments**: Flexible arguments to control input/output files, buffer sizes, puzzle dimensions, word length range, and sorting.
+- **Dictionary Integration**: Loads words from a dictionary file to validate potential matches within the puzzle.
+- **Efficient Memory Usage**: Configurable buffer sizes allow optimal memory allocation for large puzzles.
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- **C Compiler**: Ensure you have `gcc` or another C compiler installed.
-- **POSIX Threads (pthread)**: Required for multi-threading.
+- **C Compiler**: Make sure to have `gcc` or another C compiler installed.
+- **POSIX Threads (pthread)**: Required for multi-threading functionality.
 
 ### Installation
 
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/diegoprada02/multi-threaded-password-generator.git
-   cd multi-threaded-password-generator
+   git clone https://github.com/diegoprada02/multi-threaded-puzzle-solver.git
+   cd multi-threaded-puzzle-solver
 
     Compile the code:
 
     bash
 
-    gcc -o password_generator main.c hash.c -lpthread -lm
+    gcc -o puzzle_solver solver.c -lpthread -lm
 
 🔧 Usage
 
@@ -36,40 +36,42 @@ Run the program with the following command-line arguments:
 
 bash
 
-./password_generator -p <num_producers> -c <num_consumers> -n <num_passwords> -l <words_per_password> -f <dictionary_file>
+./puzzle_solver -input <input_file> -nbuffer <num_buffers> -dict <dictionary_file> -size <puzzle_size> -len <min_len>:<max_len> [-s]
 
 Arguments
 
-    -p <num_producers>: Number of producer threads to populate the hashset with words.
-    -c <num_consumers>: Number of consumer threads to generate passwords.
-    -n <num_passwords>: Total number of passwords to generate.
-    -l <words_per_password>: Number of words in each password.
-    -f <dictionary_file>: Path to the dictionary file containing words for password generation.
+    -input <input_file>: Path to the puzzle input file.
+    -nbuffer <num_buffers>: Number of buffers (1, 4, 16, or 64).
+    -dict <dictionary_file>: Path to the dictionary file.
+    -size <puzzle_size>: Size of the puzzle grid (between 15 and 46340).
+    -len <min_len>:<max_len>: Minimum and maximum length of words to search (3–14 characters).
+    -s (optional): Sorts the output words in alphabetical order.
 
 Example
 
 bash
 
-./password_generator -p 4 -c 2 -n 10 -l 3 -f dictionary.txt
-
-This example will use:
-
-    4 producers to load words into the hashset.
-    2 consumers to generate 10 passwords, each containing 3 words, using dictionary.txt as the word source.
+./puzzle_solver -input puzzle.txt -nbuffer 16 -dict words.txt -size 100 -len 3:8 -s
 
 📂 File Structure
 
-    main.c: The main file with producer and consumer thread logic.
-    hash.c: Contains hashset manipulation functions (insert, delete).
-    hash.h: Header file for the hashset functions.
+    solver.h: Contains function prototypes and macros.
+    solver.c: Main program file with multi-threaded puzzle-solving logic.
+    Makefile: Builds the program.
 
-📌 Program Flow
+📌 Function Overview
 
-    Producer Threads: Each producer inserts a portion of the dictionary words into the shared hashset.
-    Consumer Threads: Consumers generate passwords by randomly selecting words from the hashset. Each word selected is removed from the hashset to prevent reuse in other passwords.
-    Mutex Locks: Protects the hashset to ensure only one thread accesses it at a time.
+    validate_args: Validates and parses command-line arguments.
+    read_puzzle: Reads the puzzle from the specified file.
+    solve: Thread function to solve sub-puzzles.
+    inorder_print: Prints found words in alphabetical order if -s is used.
 
-📈 Performance Tips
+📈 Performance Considerations
 
-    The number of producer and consumer threads can be adjusted based on the system’s core count for optimal performance.
-    Ensure password count (k) is divisible by the number of consumers (m) to avoid errors.
+    Optimal buffer sizes (1, 4, 16, 64) should be selected based on puzzle size for memory efficiency.
+    Each thread processes a sub-puzzle independently to maximize CPU usage.
+
+🔍 Troubleshooting
+
+    Ensure that buffer sizes and puzzle size follow specified constraints.
+    Confirm the input and dictionary files are correctly formatted and accessible.
